@@ -167,3 +167,5 @@ cython_debug/
 
 # pytorch model
 *.pt
+# macos
+.DS_Store
