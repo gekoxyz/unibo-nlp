@@ -10,9 +10,9 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 TEST_SPLIT = 0.2
 VALIDATION_SPLIT = 0.4
 
-NUM_EPOCHS = 3
-BATCH_SIZE = 64
-REVIEW_MAX_LENGTH = 1000
+NUM_EPOCHS = 4
+BATCH_SIZE = 128
+REVIEW_MAX_LENGTH = 500
 
 hyperparameters = {
   "NUM_EPOCHS": [3, 6],
@@ -22,7 +22,7 @@ hyperparameters = {
 
 TOKENIZER_MAX_WORDS = 10000
 
-data = pd.read_csv("./lemmatized_clean_dataset.csv")
+data = pd.read_csv("./clean_dataset.csv")
 
 train_data, test_data = train_test_split(data, test_size=TEST_SPLIT, random_state=1337, stratify=data["label"])
 
@@ -61,4 +61,4 @@ save_lstm_model(model, NUM_EPOCHS, BATCH_SIZE, REVIEW_MAX_LENGTH)
 
 loss, accuracy = model.evaluate(X_test, Y_test)
 print(f"test loss:     {loss}")
-print(f"test lccuracy: {accuracy}")
+print(f"test accuracy: {accuracy}")

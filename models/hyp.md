@@ -21,4 +21,16 @@ test accuracy: 0.8695999979972839
 
 lstm 3 epochs 64 batch_size 1000 review_max_length
 test loss:     0.3424083888530731
-test lccuracy: 0.866100013256073
+test accuracy: 0.866100013256073
+
+lstm 3 epochs 128 batch_size 500 review_max_length
+test loss:     0.3661049008369446
+test accuracy: 0.8708999752998352
+
+lstm 3 epochs 128 batch_size 1000 review_max_length
+test loss:     0.33597591519355774
+test accuracy: 0.8600999712944031
+
+lstm 6 epochs 128 batch_size 1000 review_max_length
+test loss:     0.3872539699077606
+test accuracy: 0.8633000254631042
