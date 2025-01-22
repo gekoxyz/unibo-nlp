@@ -1,6 +1,5 @@
 \documentclass{article}
 
-
 \usepackage{arxiv}
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
@@ -15,9 +14,7 @@
 \usepackage{graphicx}
 \graphicspath{ {./images/} }
 
-
-\title{Sentiment analysis su database di IMDB}
-
+\title{Sentiment analysis su dataset IMDB}
 
 \author{
  Matteo Galiazzo \\
@@ -57,16 +54,99 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Data mining is a good way to find the relationship between raw data and predict the target we want which is also widely used in different field nowadays. In this project, we implement a lots of technology and method in data mining to predict the sale of an item based on its previous sale. We create a strong model to predict the sales. After evaluating this model, we conclude that this model can be used in normal life for future sale’s prediction. 
+TODO
 \end{abstract}
-
 
 % keywords can be removed
 %\keywords{First keyword \and Second keyword \and More}
 
 
 \section{Introduction}
-Our project is a competition on Kaggle (Predict Future Sales). We are provided with daily historical sales data (including each products’ sale date, block ,shop price and amount). And we will use it to forecast the total amount of each product sold next month. Because of the list of shops and products slightly changes every month. We need to create a robust model that can handle such situations.
+
+This project presents an implementation of sentiment analysis on the IMDB movie reviews dataset using deep learning approaches.
+The project explores two different Long Short-Term Memory (LSTM) architectures: a standard LSTM and a bidirectional LSTM model.
+The implementation leverages TensorFlow and Keras for model development and training, with the goal of accurately classifying movie reviews as either positive or negative.
+
+\subsection{Recurrent Neural Networks}
+
+The problem of using a MLP or CNN to process text is the fact that we have a fixed input.
+This means that if we use one of this architectures we are constrained by a fixed window for our input.
+For solving this problem scholars introduced Recurrent Neural Networks (RNNs).
+In a RNN we have a sequence of words $x_1, ..., x_n$.
+To process this sequence we inject $x_1$ in the hidden layer and output $o_1$.
+The information of $x_2$ is processed together with the output of the previous computation.
+So in principle when you compute the output of $x_n$ you take into consideration all the previous output.
+This way the sequence length is independent from the network structure.
+
+Two very common memory cells for RNNs are Long Short-Term Memory (LSTM) or Gated Recurrent Units (GRU).
+RNNs have a problem. They can only see the past of the sequence.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{img/rnn_unfolded.png}
+  \caption{A compressed (left) and unfolded (right) RNN}
+  \label{fig:rnn_unfolded}
+\end{figure}
+
+Abstractly speaking, an RNN is a function $f_{\theta}$ of type $(x_t, h_t) \rightarrow (y_t, h_{t+1})$, where:
+\begin{itemize}
+  \item $x_t$: input vector.
+  \item $h_t$: hidden vector.
+  \item $y_t$: output vector.
+  \item $\theta$: neural network parameters.
+\end{itemize}
+
+It's a neural netowrk that maps an input $x_t$ into an output $y_t$, with the hidden vector $h_t$ playing the role of "memory", a partial record of all previous input-output pairs.
+At each step, it transforms input to an output, and modifies its "memory" to help it to better perform future processing.
+
+The figure \ref{fig:rnn_unfolded} may be misleading to many because practical neural netowrk topologies are frequently organized in "layers" and the drawing gives that appearance.
+However, what appears to be layers are, in fact, different steps in time, "unfolded" to produce the appearance of layers.
+
+We can combine two RNNs with one which gets an inverted input to see both the past and the future of the sequence.
+
+We can combine two RNNs, one processing the input sequence in one direction, and the other one in the opposite direction
+This is called a bidirectional RNN, and it's structured as follows:
+\begin{itemize}
+  \item The forward RNN processes in one direction: $f_{\theta}(x_0, h_0) = (y_0, h_1), f_{\theta}(x_1, h_1) = (y_1, h_2), ...$
+  \item The backward RNN processes in the opposite direction:
+  
+  ${f'}_{\theta '}(x_N, {h'}_N) = ({y'}_N, {h'}_{N-1}), {f'}_{\theta '}(x_{N-1}, {h'}_{N-1}) = ({y'}_{N-1},{h'}_{N-2}), ...$
+\end{itemize}
+
+The two output sequences are then concatenated to give the total output: $((y_0, {y'}_0), (y_1, {y'}_1), ..., (y_N, {y'}_N))$.
+Bidirectional RNN allows the model to process a token both in the context of what came before it and what came after it.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{img/rnn_bidirectional.png}
+  \caption{An unfolded bidirectional RNN}
+  \label{fig:rnn_bidirectional}
+\end{figure}
+
+\section{Technical implementation}
+
+\subsection{Dataset}
+
+The IMDB dataset is a widely used benchmark for sentiment analysis tasks.
+It contains 50000 movie reviews from IMDB, allowing no more than 30 reviews per movie.
+The dataset contains an even number of positive and negative reviews, so randomly guessing yields 50\% accuracy.
+Also, neutral reviews are not included in the dataset \cite{imdb_dataset_stanfordnlp}.
+
+\subsection{Data preprocessing}
+
+The implementation includes several preprocessing steps.
+The first one is data preprocessing.
+Data preprocessing is important because raw textual data often contains noise, suck as typographical errors, inconsistent formatting and irrelevant symbols.
+Preprocessing techniques aim to transform raw text data into a clean format that facilitates effective feature extraction and model training.
+
+% TODO: explain what is NLTK, explain what are stopwords and what's lemmatization
+
+In this case I cleaned the dataset by removing: links, html tags, double spaces, punctuation and stopwords.
+The stopwords were removed by using NLTK (Natural Language ToolKit).
+I also removed stopwords and lemmatized the dataset.
+
+The entire dataset was finally also converted to lowercase.
+
 
 
 % \section{Task description and data construction}
@@ -159,10 +239,10 @@ Our project is a competition on Kaggle (Predict Future Sales). We are provided w
 % \end{itemize}
 
 
-% \bibliographystyle{unsrt}
+\bibliographystyle{unsrt}
 
 % Remove comment to use the external .bib file (using bibtex).
-% \bibliography%{references}
+\bibliography{references.bib}
 % and comment out the ``thebibliography'' section.
 
 
