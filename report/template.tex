@@ -12,6 +12,36 @@
 \usepackage{microtype}      % microtypography
 \usepackage{lipsum}
 \usepackage{graphicx}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
 \graphicspath{ {./images/} }
 
 \title{Sentiment analysis su dataset IMDB}
@@ -102,7 +132,7 @@ At each step, it transforms input to an output, and modifies its "memory" to hel
 The figure \ref{fig:rnn_unfolded} may be misleading to many because practical neural netowrk topologies are frequently organized in "layers" and the drawing gives that appearance.
 However, what appears to be layers are, in fact, different steps in time, "unfolded" to produce the appearance of layers.
 
-We can combine two RNNs with one which gets an inverted input to see both the past and the future of the sequence.
+\subsubsection{Bidirectional RNNs}
 
 We can combine two RNNs, one processing the input sequence in one direction, and the other one in the opposite direction
 This is called a bidirectional RNN, and it's structured as follows:
@@ -123,6 +153,109 @@ Bidirectional RNN allows the model to process a token both in the context of wha
   \label{fig:rnn_bidirectional}
 \end{figure}
 
+\subsubsection{LSTM}
+
+While Recurrent Neural Networks (RNNs) provide a mechanism for processing sequential data by maintaining a hidden state that captures information from previous steps, they suffer from the vanishing gradient problem.
+This issue happens when gradients used to update the network's parameters during training diminish exponentially over time, making it difficult for the network to learn long term dependencies.
+To adress this, Long Short-Term Memory (LSTM) networks were introduced as a specialized variant of RNNs.
+LSTMs can better capture long-term dependencies by incorporating a more sophisticated memory mechanism and gating structure.
+
+% beginning of the explaination
+% https://blog.mlreview.com/understanding-lstm-and-its-diagrams-37e2f46f1714
+% https://www.linkedin.com/pulse/understanding-lstm-in-depth-look-its-architecture-pros-babu-thomas
+
+% ---------------------------------------------------------------------------
+% An LSTM unit consists of a cell state and three gates: the input gate, forget gate, and output gate.
+% These gates regulate the flow of information into, out of, and within the cell, allowing the network to retain or discard information over extended sequences.
+%
+% The cell state, denoted as $C_t$, acts as a conveyor belt that carries information across time steps with minimal interference, while the gates determine how much information is added, removed or given in output at each step.
+% Mathematically, the operations of an LSTM can be described as:
+% \begin{itemize}
+%   \item Forget gate: decides what information to discard from the cell state. $\\ f_t = \sigma (W_f \cdot [h_{t-1}, x_t] + b_f)$
+%   \item Input gate: determines what new information to store in the cell state
+%   \item Cell state update: combines the forget gate and input gate to update the cell state
+%   \item Output gate: controls what information from the cell state is output as the hidden state. $\\ o_t = \sigma (W_o \cdot [h_{t-1}, x_t] + b_o) \\ h_t = o_t \cdot \tanh(C_t)$
+% \end{itemize}
+% ---------------------------------------------------------------------------
+
+In LSTMs the module, instead of having a single neural network layer, has four parts interacting in a special way.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{img/lstm_chain.png}
+  \caption{The repeating module in an LSTM}
+  \label{fig:lstm_chain}
+\end{figure}
+
+In the diagram in figure \ref{fig:lstm_chain}, each line carries an entire vector, from the output of one node to the inputs of others.
+The pink circles represent pointwise operations, like vector addition, while the yellow boxes are learned neural network layers.
+Lines merging denote concatenation, while a line fork denotes its content being copied and the copies going to different locations.
+
+\paragraph{The core idea behind LSTMs}
+
+The key to LSTMs is the cell state, the horizontal line running through the top of the diagram.
+The cell state is like a conveyor belt. It runs straight down the entire chain, with only some minor linear interactions.
+It's very easy for information to just flow along it unchanged.
+
+The LSTM does have the ability to remove or add information to the cell state, carefully regulated bu structures called gates.
+Gates are a way to optionally let information through.
+They are composed out of a sigmoid neural net layer and a pointwise multiplication operation.
+
+The sigmoid layer outputs numbers between zero and one, describing how much of each component should be let through. A value of zero means "let nothing through", while a value of one means "let everything through".
+An LSTM has three of these gates, to protect and control the cell state.
+
+\paragraph{The four LSTM parts}
+The first step in our LSTM is to decide what information we're going to throw away from the cell state.
+This decision is made by a sigmoid layer called the "forget gate layer".
+It looks at $h_{t-1}$ and $x_t$ and outputs a number between 0 and 1 for each number in the cell state $C_{t-1}$.
+A 1 represents "remember this" while a 0 represents "forget this".
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/lstm_forget.png}
+  \caption{The forget module in an LSTM}
+  \label{fig:lstm_forget}
+\end{figure}
+
+The next step is to decide what new information we're going to store in the cell state.
+This has two parts.
+First a sigmoid layer called the "input gate layer" decides which values we'll update.
+Next, a tanh layer creates a vector of new candidate values, $\tilde{C}_t$, that could be added to the state.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/lstm_input.png}
+  \caption{The input module in an LSTM}
+  \label{fig:lstm_input}
+\end{figure}
+
+Next, we have to update the old cell state $C_{t-1}$, into the new cell state $C_t$.
+The previous steps already decided what to do, we just need to actually do it.
+We multiply the old state by $f_t$, forgetting the things we decided to forget earlier.
+Then we add $i_t * \tilde{C}_t$.
+This is the new candidate values, scaled by how much we decided to update each state value.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/lstm_update.png}
+  \caption{The update module in an LSTM}
+  \label{fig:lstm_update}
+\end{figure}
+
+Finally, we need to decide what we're going to output.
+This output will be based on our cell state, but will be a filtered version.
+First, we run a sigmoid layer which decides what parts of the cell sate we're going to output.
+Then, we put the cell state through tanh (to push the values between -1 and 1) and multiply it by the output of the sigmoid gate, so that we only output the parts we decided to.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/lstm_output.png}
+  \caption{The output module in an LSTM}
+  \label{fig:lstm_output}
+\end{figure}
+
+
+
 \section{Technical implementation}
 
 \subsection{Dataset}
@@ -139,15 +272,48 @@ The first one is data preprocessing.
 Data preprocessing is important because raw textual data often contains noise, suck as typographical errors, inconsistent formatting and irrelevant symbols.
 Preprocessing techniques aim to transform raw text data into a clean format that facilitates effective feature extraction and model training.
 
-% TODO: explain what is NLTK, explain what are stopwords and what's lemmatization
-
 In this case I cleaned the dataset by removing: links, html tags, double spaces, punctuation and stopwords.
-The stopwords were removed by using NLTK (Natural Language ToolKit).
-I also removed stopwords and lemmatized the dataset.
+Stopwords are high frequency and low information words such as articles, prepositions, and conjunctions (e.g. "the", "and", "in") that are excluded to reduce noise and improve computational efficiency.
+The stopwords were removed by using NLTK (Natural Language ToolKit), a suite of libraries and programs for natural language processing written in Python.
+I also lemmatized the dataset.
+Lemmatization is the process of reducing words to their root form, known as a lemma.
+Unlike stemming, which simply chops off word endings, lemmatization considers the context and part of speech of a word to return a valid dictionary form (e.g. "running" is "run" and "better" is "good").
+The entire dataset was also converted to lowercase.
 
-The entire dataset was finally also converted to lowercase.
+We can see the dataset's head in the following code snippet:
+\begin{itemize}
+  \item Before the preprocessing:
+    \begin{lstlisting}
+    0      I rented I AM CURIOUS-YELLOW from my video sto...      0
+    1      "I Am Curious: Yellow" is a risible and preten...      0
+    2      If only to avoid making this type of film in t...      0
+    3      This film was probably inspired by Godard's Ma...      0
+    4      Oh, brother...after hearing about this ridicul...      0
+    ...                                                  ...    ...
+    49995  Just got around to seeing Monster Man yesterda...      1
+    49996  I got this as part of a competition prize. I w...      1
+    49997  I got Monster Man in a box set of three films ...      1
+    49998  Five minutes in, i started to feel how naff th...      1
+    49999  I caught this movie on the Sci-Fi channel rece...      1
+    \end{lstlisting}
 
+  \item After the preprocessing:
+    \begin{lstlisting}
+    0      rented curious yellow video store controversy ...      0
+    1      curious yellow risible pretentious steaming pi...      0
+    2      avoid making type film future film interesting...      0
+    3      film probably inspired godard masculin feminin...      0
+    4      oh brother hearing ridiculous film umpteen yea...      0
+    ...                                                  ...    ...
+    49995  got around seeing monster man yesterday long w...      1
+    49996  got part competition prize watched really expe...      1
+    49997  got monster man box set three film mainly want...      1
+    49998  five minute started feel naff looking got comp...      1
+    49999  caught movie sci fi channel recently actually ...      1
+    \end{lstlisting}
+\end{itemize}
 
+\subsection{Model architectures}
 
 % \section{Task description and data construction}
 % \label{sec:headings}
