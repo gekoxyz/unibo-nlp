@@ -9,11 +9,19 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Embedding, LSTM
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.regularizers import l2
 
 TEST_SPLIT = 0.2
-VALIDATION_SPLIT = 0.4
+VALIDATION_SPLIT = 0.2
 
 TOKENIZER_MAX_WORDS = 10000
+
+early_stopping = EarlyStopping(
+  monitor="val_loss",
+  patience=2,  # Wait 2 epochs after the best epoch
+  restore_best_weights=True  # Revert to the best model
+)
 
 hyperparameters = {
   "NUM_EPOCHS": [3, 6],
@@ -49,8 +57,8 @@ for hyperparameters_combinations in itertools.product(*hyperparameters.values())
 
   print("nn: LSTM - Long Short-Term Memory")
   model = Sequential()
-  model.add(Embedding(input_dim=TOKENIZER_MAX_WORDS, output_dim=128))
-  model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
+  model.add(Embedding(input_dim=TOKENIZER_MAX_WORDS, output_dim=64))
+  model.add(LSTM(64, dropout=0.3, recurrent_dropout=0.3, kernel_regularizer=l2(0.01)))
   model.add(Dense(1, activation="sigmoid"))
 
   print(model.summary())
@@ -58,7 +66,7 @@ for hyperparameters_combinations in itertools.product(*hyperparameters.values())
   model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
   print("training the model")
-  model.fit(X_train, Y_train, epochs=current_hyperparameters["NUM_EPOCHS"], batch_size=current_hyperparameters["BATCH_SIZE"], validation_split=VALIDATION_SPLIT)
+  history = model.fit(X_train, Y_train, epochs=current_hyperparameters["NUM_EPOCHS"], batch_size=current_hyperparameters["BATCH_SIZE"], validation_split=VALIDATION_SPLIT, callbacks=[early_stopping])
 
   save_lstm_model(model, current_hyperparameters["NUM_EPOCHS"], current_hyperparameters["BATCH_SIZE"], current_hyperparameters["REVIEW_MAX_LENGTH"])
 
@@ -71,3 +79,8 @@ for hyperparameters_combinations in itertools.product(*hyperparameters.values())
     file.write(f"LSTM with hyperparameters {current_hyperparameters}\n")
     file.write(f"test loss:     {loss}\n")
     file.write(f"test accuracy: {accuracy}\n")
+
+  with open("training_metrics.txt", "a") as file:
+    file.write(f"LSTM with hyperparameters {current_hyperparameters}\n")
+    file.write(f"{history}\n")
+    file.write(f"--------------------------------------------------------")
