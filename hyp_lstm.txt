@@ -22,3 +22,31 @@ test accuracy: 0.855400025844574
 LSTM with hyperparameters {'NUM_EPOCHS': 6, 'BATCH_SIZE': 128, 'REVIEW_MAX_LENGTH': 1000}
 test loss:     0.4279610216617584
 test accuracy: 0.8575000166893005
+
+------------------------------------------------------------------
+
+
+LSTM with hyperparameters {'NUM_EPOCHS': 3, 'BATCH_SIZE': 64, 'REVIEW_MAX_LENGTH': 500}
+test loss:     0.3343100845813751
+test accuracy: 0.8657000064849854
+LSTM with hyperparameters {'NUM_EPOCHS': 3, 'BATCH_SIZE': 64, 'REVIEW_MAX_LENGTH': 1000}
+test loss:     0.32543736696243286
+test accuracy: 0.8725000023841858
+LSTM with hyperparameters {'NUM_EPOCHS': 3, 'BATCH_SIZE': 128, 'REVIEW_MAX_LENGTH': 500}
+test loss:     0.33692342042922974
+test accuracy: 0.8611999750137329
+LSTM with hyperparameters {'NUM_EPOCHS': 3, 'BATCH_SIZE': 128, 'REVIEW_MAX_LENGTH': 1000}
+test loss:     0.3225123882293701
+test accuracy: 0.8700000047683716
+LSTM with hyperparameters {'NUM_EPOCHS': 6, 'BATCH_SIZE': 64, 'REVIEW_MAX_LENGTH': 500}
+test loss:     0.32418251037597656
+test accuracy: 0.8719000220298767
+LSTM with hyperparameters {'NUM_EPOCHS': 6, 'BATCH_SIZE': 64, 'REVIEW_MAX_LENGTH': 1000}
+test loss:     0.3183320164680481
+test accuracy: 0.8769999742507935
+LSTM with hyperparameters {'NUM_EPOCHS': 6, 'BATCH_SIZE': 128, 'REVIEW_MAX_LENGTH': 500}
+test loss:     0.3389231562614441
+test accuracy: 0.8677999973297119
+LSTM with hyperparameters {'NUM_EPOCHS': 6, 'BATCH_SIZE': 128, 'REVIEW_MAX_LENGTH': 1000}
+test loss:     0.3236008584499359
+test accuracy: 0.8784999847412109
