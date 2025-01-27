@@ -474,3 +474,7 @@ TSWLatexianTemp*
 
 # xwatermark package
 *.xwm
+
+# lstm data
+lstm_data/*
+lstm_data*
