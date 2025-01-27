@@ -34,7 +34,7 @@ def save_lstm_model(model, epochs, batch_size, review_max_length):
   model.save(f"./models/{model_name}.keras")
   model.save_weights(f"./models/{model_name}.weights.h5")
 
-data = pd.concat([chunk for chunk in tqdm(pd.read_csv("./clean_dataset.csv", chunksize=1000), desc="loading dataset")])
+data = pd.read_csv("./clean_dataset.csv")
 
 train_data, test_data = train_test_split(data, test_size=TEST_SPLIT, random_state=1337, stratify=data["label"])
 
