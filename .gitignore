@@ -167,6 +167,8 @@ cython_debug/
 
 # pytorch model
 *.pt
+# keras models 
+*.keras
 # macos
 .DS_Store
 

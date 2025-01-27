@@ -13,9 +13,10 @@ from tensorflow.keras.layers import Dense, Embedding, LSTM
 TEST_SPLIT = 0.2
 VALIDATION_SPLIT = 0.2
 
-TOKENIZER_MAX_WORDS = 20000
+TOKENIZER_MAX_WORDS = 10000
 
-REVIEW_LENGTH = 256
+REVIEW_LENGTH = 250
+BATCH_SIZE = 64
 
 data = pd.concat([chunk for chunk in tqdm(pd.read_csv("./clean_dataset.csv", chunksize=1000), desc="loading the dataset")])
 
@@ -38,14 +39,14 @@ print("building the LSTM")
 # ------------------ NEW CODE --------------------
 from tensorflow.keras.callbacks import ModelCheckpoint
 
-EMBED_DIM = 32
-LSTM_OUT = 64
+EMBED_DIM = 64 # 32
+LSTM_OUT = 128 # 64
 
 total_words = len(tokenizer.word_index) + 1
 
 model = Sequential()
 model.add(Embedding(total_words, EMBED_DIM, input_length=REVIEW_LENGTH))
-model.add(LSTM(LSTM_OUT))
+model.add(LSTM(LSTM_OUT, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
@@ -58,6 +59,6 @@ checkpoint = ModelCheckpoint(
   verbose=1
 )
 
-model.fit(X_train, Y_train, batch_size = 128, epochs = 5, callbacks=[checkpoint])
+model.fit(X_train, Y_train, batch_size = BATCH_SIZE, epochs = 5, callbacks=[checkpoint])
 
 metrics = model.evaluate(X_test, Y_test)
