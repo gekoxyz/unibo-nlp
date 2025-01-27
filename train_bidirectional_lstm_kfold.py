@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 from sklearn.model_selection import StratifiedKFold
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Embedding, LSTM
+from tensorflow.keras.layers import Dense, Embedding, LSTM, Bidirectional
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -35,8 +35,8 @@ tmp_hyp_combinations = [
 ]
 
 def save_lstm_model(model, batch_size, review_max_length, fold_num):
-  model_name = f"lstm_{batch_size}_batch_size_{review_max_length}_review_max_length_{fold_num}_fold"
-  model.save(f"./models/{model_name}.keras")
+  model_name = f"bidirectional_lstm_{batch_size}_batch_size_{review_max_length}_review_max_length_{fold_num}_fold"
+  model.save(f"./bidirectional_lstm_data/models/{model_name}.keras")
 
 data = pd.read_csv("./clean_dataset.csv")
 
@@ -64,15 +64,16 @@ for fold_num, (train_idx, val_idx) in enumerate(skf.split(data["text"], data["la
     print(f"creating the model")
     model = Sequential()
     model.add(Embedding(input_dim=TOKENIZER_MAX_WORDS, output_dim=EMBED_DIM))
-    model.add(LSTM(LSTM_OUT, dropout=0.2, recurrent_dropout=0.2))
-    model.add(Dense(1, activation="sigmoid"))
-    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    model.add(Bidirectional(LSTM(LSTM_OUT, dropout=0.2, recurrent_dropout=0.2)))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['accuracy'])
+
     print(model.summary())
 
-    model_name = f"lstm_{hyperparameters['BATCH_SIZE']}_batch_size_{hyperparameters['REVIEW_MAX_LENGTH']}_review_max_length_{fold_num}_fold"
+    model_name = f"bidirectional_lstm_{hyperparameters['BATCH_SIZE']}_batch_size_{hyperparameters['REVIEW_MAX_LENGTH']}_review_max_length_{fold_num}_fold"
 
     model_checkpoint = ModelCheckpoint(
-      f"models/{model_name}.keras",
+      f"bidirectional_lstm_data/models/{model_name}.keras",
       monitor='accuracy',
       save_best_only=True,
       verbose=1
