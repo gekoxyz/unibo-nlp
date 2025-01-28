@@ -14,14 +14,13 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
-TEST_SPLIT = 0.2
 VALIDATION_SPLIT = 0.2
 K_FOLDS = 5
 
 TOKENIZER_MAX_WORDS = 10000
 EPOCHS = 5
-EMBED_DIM = 64
-LSTM_OUT = 128
+EMBED_DIM = 128
+LSTM_OUT = 64
 
 early_stopping = EarlyStopping(
   monitor="val_loss",

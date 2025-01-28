@@ -84,7 +84,9 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-TODO
+This project presents an implementation of sentiment analysis on the IMDB movie reviews dataset using deep learning approaches.
+The project explores two different Long Short-Term Memory (LSTM) architectures: a standard LSTM and a bidirectional LSTM model.
+The implementation leverages TensorFlow and Keras for model development and training, with the goal of accurately classifying movie reviews as either positive or negative.
 \end{abstract}
 
 % keywords can be removed
@@ -93,9 +95,6 @@ TODO
 
 \section{Introduction}
 
-This project presents an implementation of sentiment analysis on the IMDB movie reviews dataset using deep learning approaches.
-The project explores two different Long Short-Term Memory (LSTM) architectures: a standard LSTM and a bidirectional LSTM model.
-The implementation leverages TensorFlow and Keras for model development and training, with the goal of accurately classifying movie reviews as either positive or negative.
 
 \subsection{Recurrent Neural Networks}
 
@@ -154,29 +153,12 @@ Bidirectional RNN allows the model to process a token both in the context of wha
 \end{figure}
 
 \subsubsection{LSTM}
+\label{sec:lstm}
 
 While Recurrent Neural Networks (RNNs) provide a mechanism for processing sequential data by maintaining a hidden state that captures information from previous steps, they suffer from the vanishing gradient problem.
 This issue happens when gradients used to update the network's parameters during training diminish exponentially over time, making it difficult for the network to learn long term dependencies.
 To adress this, Long Short-Term Memory (LSTM) networks were introduced as a specialized variant of RNNs.
 LSTMs can better capture long-term dependencies by incorporating a more sophisticated memory mechanism and gating structure.
-
-% beginning of the explaination
-% https://blog.mlreview.com/understanding-lstm-and-its-diagrams-37e2f46f1714
-% https://www.linkedin.com/pulse/understanding-lstm-in-depth-look-its-architecture-pros-babu-thomas
-
-% ---------------------------------------------------------------------------
-% An LSTM unit consists of a cell state and three gates: the input gate, forget gate, and output gate.
-% These gates regulate the flow of information into, out of, and within the cell, allowing the network to retain or discard information over extended sequences.
-%
-% The cell state, denoted as $C_t$, acts as a conveyor belt that carries information across time steps with minimal interference, while the gates determine how much information is added, removed or given in output at each step.
-% Mathematically, the operations of an LSTM can be described as:
-% \begin{itemize}
-%   \item Forget gate: decides what information to discard from the cell state. $\\ f_t = \sigma (W_f \cdot [h_{t-1}, x_t] + b_f)$
-%   \item Input gate: determines what new information to store in the cell state
-%   \item Cell state update: combines the forget gate and input gate to update the cell state
-%   \item Output gate: controls what information from the cell state is output as the hidden state. $\\ o_t = \sigma (W_o \cdot [h_{t-1}, x_t] + b_o) \\ h_t = o_t \cdot \tanh(C_t)$
-% \end{itemize}
-% ---------------------------------------------------------------------------
 
 In LSTMs the module, instead of having a single neural network layer, has four parts interacting in a special way.
 
@@ -259,11 +241,12 @@ Then, we put the cell state through tanh (to push the values between -1 and 1) a
 \section{Technical implementation}
 
 \subsection{Dataset}
-
-The IMDB dataset is a widely used benchmark for sentiment analysis tasks.
-It contains 50000 movie reviews from IMDB, allowing no more than 30 reviews per movie.
+IMDB is a popular website that collects movie reviews.
+The IMDB dataset is a widely used benchmark for sentiment analysis tasks;
+it contains 50000 movie reviews from the website, allowing no more than 30 reviews per movie.
 The dataset contains an even number of positive and negative reviews, so randomly guessing yields 50\% accuracy.
-Also, neutral reviews are not included in the dataset \cite{imdb_dataset_stanfordnlp}.
+Only highly polarized reviews are considered.
+A negative review has a score $\leq 4$ out of 10, and a positive review has a score $\geq 7$ out of 10. Neutral reviews are not included in the dataset. \cite{imdb_dataset_stanfordnlp}. 
 
 \subsection{Data preprocessing}
 
@@ -315,126 +298,86 @@ We can see the dataset's head in the following code snippet:
 
 \subsection{Model architectures}
 
-% \section{Task description and data construction}
-% \label{sec:headings}
-% We are provided with five datasets from Kaggle: Sales train, Sale test, items, item categories and shops. In the Sales train dataset, it provides the information about the sales’ number of an item in a shop within a day. In the Sales test dataset, it provides the shop id and item id which are the items and shops we need to predict. In the other three datasets, we can get the information about item’s name and its category, and the shops’ name.
-% \paragraph{Task modeling.}
-% We approach this task as a regression problem. For every item and shop pair, we need to predict its next month sales(a number).
-% \paragraph{Construct train and test data.}
-% In the Sales train dataset, it only provides the sale within one day, but we need to predict the sale of next month. So we sum the day's sale into month's sale group by item, shop, date(within a month).
-% In the Sales train dataset, it only contains two columns(item id and shop id). Because we need to provide the sales of next month, we add a date column for it, which stand for the date information of next month.
+\subsubsection{LSTM model}
+% Keras provides the necessary components to build a LSTM network.
+The proposed model employs a neural network architecture with three core layers, combining embedding, recurrent processing, and final classification.
+We will now see the model and go through each one of its layers:
+\begin{lstlisting}[language=python]
+model = Sequential()
+model.add(Embedding(input_dim=TOKENIZER_MAX_WORDS, output_dim=EMBED_DIM))
+model.add(LSTM(LSTM_OUT, dropout=0.2, recurrent_dropout=0.2))
+model.add(Dense(1, activation="sigmoid"))
+model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+\end{lstlisting}
 
-% \subsection{Headings: second level}
-% \lipsum[5]
-% \begin{equation}
-% \xi _{ij}(t)=P(x_{t}=i,x_{t+1}=j|y,v,w;\theta)= {\frac {\alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}{\sum _{i=1}^{N} \sum _{j=1}^{N} \alpha _{i}(t)a^{w_t}_{ij}\beta _{j}(t+1)b^{v_{t+1}}_{j}(y_{t+1})}}
-% \end{equation}
+\paragraph{Embedding layer}
+This layer's purpose is to convert integer-encoded word indices into dense vector representations.
+The layer learns semantic relationships between words during training.
+Instead of having a long, sparse vector, each word is mapped to a dense vector of fixed size.
+These vectors are not binary, they contain real numbers that the model learns during training.
+Embeddings are powerful because they use vector spaces, so they can capture intricate relationships between words.
+For example, in a well trained embedding space, the vector for "king" minus "man" plus "woman" will point to queen.
+Embeddings provide a way for the models to understand and relate to the data in a more sophisticated way compared to, for example, one hot encoding \cite{mediumDoesEmbedding}.
 
-% \subsubsection{Headings: third level}
-% \lipsum[6]
+\paragraph{LSTM layer}
+We have already seen in \ref{sec:lstm} how an LSTM works. 
+We know that the LSTM layer processes sequential information while maintaining memory of long-range dependencies.
+We add the LSTM layer in the network together with a dropout and recurrent dropout.
+Dropout is a regularization technique (a process that converts the answer of a problem to a simpler one) for reducing overfitting in artificial neural networks by preventing complex co-adaptations on training data.
+Dropout refers to randomly "dropping out", or omitting, units (both hidden and visible) during the training process of a neural network.
+Dropout is the equivalent of training several smaller networks on the same task.
+The final model is like an ensemble of smaller networks, reducing variance and providing more robust predictions.
+Dropout applies dropout to the non-recurrent connections of the LSTM layer.
+Recurrent dropout applies dropout to the recurrent connections (hidden statet transitions) within the LSTM \cite{wikipediaDilutionneural}.
 
-% \paragraph{Paragraph}
-% \lipsum[7]
+\paragraph{Dense classification layer}
+This layer serves as the final classification step.
+The dense layer is a fully connected layer that takes the output from the LSTM and maps it to a single scalar value.
+The LSTM typically returns a sequence of hidden states or a final hidden state.
+This dense layer "summarizes" that information into a single value.
+The sigmoid activation function squashes the output into the range $[0,1]$, interpreting it as a probability of the sentiment.
 
-% \section{Examples of citations, figures, tables, references}
-% \label{sec:others}
-% \lipsum[8] \cite{kour2014real,kour2014fast} and see \cite{hadash2018estimate}.
+\paragraph{Model compilation}
+The model compilation step configures the model for training by defining how it learns (the optimizer), what to optimize for (loss function) and how to evaluate the performance (evaluation metric).
+The optimizer is Adam (Adaptive Moment Estimation), an advanced gradient descent alogrithm that adapts learning rates during training.
+It combines the benefits of momentum (accelerates updates in consistent gradient directions) and adaptive leraning rates (adjusts rates for each parameter individually).
+The loss function is the binary cross-entropy.
+The purpose of the loss function is to measure the difference between predicted probabilities and true labels.
+It quantifies how well the model performs.
+The evaluation metric is the accuracy (the percentage of correct predictions), I didn't choose another metric like F1-score because the dataset is balanced.
 
-% The documentation for \verb+natbib+ may be found at
-% \begin{center}
-%   \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
-% \end{center}
-% Of note is the command \verb+\citet+, which produces citations
-% appropriate for use in inline text.  For example,
-% \begin{verbatim}
-%    \citet{hasselmo} investigated\dots
-% \end{verbatim}
-% produces
-% \begin{quote}
-%   Hasselmo, et al.\ (1995) investigated\dots
-% \end{quote}
+\subsubsection{Bidirectional LSTM model}
 
-% \begin{center}
-%   \url{https://www.ctan.org/pkg/booktabs}
-% \end{center}
+The bidirectional LSTM model is basically identical to the LSTM network, but it adds a bidirectional layer.
+The main difference is that while the standard LSTM processes the sequence in one direction, so it can only capture the past context, while the bidirectional LSTM processes the sequence in both directions, so it can capture both past and future context.
+The bidirectional LSTM is more complex, with roughly double the parameters due to the two LSTMs.
 
+\begin{lstlisting}[language=python]
+model = Sequential()
+model.add(Embedding(input_dim=TOKENIZER_MAX_WORDS, output_dim=EMBED_DIM))
+model.add(Bidirectional(LSTM(LSTM_OUT, dropout=0.2, recurrent_dropout=0.2)))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['accuracy'])
+\end{lstlisting}
 
-% \subsection{Figures}
-% \lipsum[10] 
-% See Figure \ref{fig:fig1}. Here is how you add footnotes. \footnote{Sample of the first footnote.}
-% \lipsum[11] 
+\subsection{Hyperparameters selection}
 
-% \begin{figure}
-%   \centering
-%   \fbox{\rule[-.5cm]{4cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-%   \caption{Sample figure caption.}
-%   \label{fig:fig1}
-% \end{figure}
+The hyperparameters for the network and the rationale behind them are:
+\begin{itemize}
+  \item \verb|TOKENIZER_MAX_WORDS|: 10000. Since adults that are native english speakers tend to have a vocabulary of 15000 to 30000 words I expect to be able to extract the positive/negative sentiment with two thirds of the tipical vocabulary \cite{babbelDoesYour}.
+\end{itemize}
 
-% \begin{figure} % picture
-%     \centering
-%     \includegraphics{test.png}
-% \end{figure}
+% VALIDATION_SPLIT = 0.2
+% K_FOLDS = 5
+% TOKENIZER_MAX_WORDS = 10000
+% EPOCHS = 5
+% EMBED_DIM = 128
+% LSTM_OUT = 64
 
-% \subsection{Tables}
-% \lipsum[12]
-% See awesome Table~\ref{tab:table}.
-
-% \begin{table}
-%  \caption{Sample table title}
-%   \centering
-%   \begin{tabular}{lll}
-%     \toprule
-%     \multicolumn{2}{c}{Part}                   \\
-%     \cmidrule(r){1-2}
-%     Name     & Description     & Size ($\mu$m) \\
-%     \midrule
-%     Dendrite & Input terminal  & $\sim$100     \\
-%     Axon     & Output terminal & $\sim$10      \\
-%     Soma     & Cell body       & up to $10^6$  \\
-%     \bottomrule
-%   \end{tabular}
-%   \label{tab:table}
-% \end{table}
-
-% \subsection{Lists}
-% \begin{itemize}
-% \item Lorem ipsum dolor sit amet
-% \item consectetur adipiscing elit. 
-% \item Aliquam dignissim blandit est, in dictum tortor gravida eget. In ac rutrum magna.
-% \end{itemize}
-
+\subsection{Model training}
+The models have been trained 
 
 \bibliographystyle{unsrt}
-
-% Remove comment to use the external .bib file (using bibtex).
 \bibliography{references.bib}
-% and comment out the ``thebibliography'' section.
-
-
-% %%% Comment out this section when you \bibliography{references} is enabled.
-% \begin{thebibliography}{1}
-
-% \bibitem{kour2014real}
-% George Kour and Raid Saabne.
-% \newblock Real-time segmentation of on-line handwritten arabic script.
-% \newblock In {\em Frontiers in Handwriting Recognition (ICFHR), 2014 14th
-%   International Conference on}, pages 417--422. IEEE, 2014.
-
-% \bibitem{kour2014fast}
-% George Kour and Raid Saabne.
-% \newblock Fast classification of handwritten on-line arabic characters.
-% \newblock In {\em Soft Computing and Pattern Recognition (SoCPaR), 2014 6th
-%   International Conference of}, pages 312--318. IEEE, 2014.
-
-% \bibitem{hadash2018estimate}
-% Guy Hadash, Einat Kermany, Boaz Carmeli, Ofer Lavi, George Kour, and Alon
-%   Jacovi.
-% \newblock Estimate and replace: A novel approach to integrating deep neural
-%   networks with existing applications.
-% \newblock {\em arXiv preprint arXiv:1804.09028}, 2018.
-
-% \end{thebibliography}
-
 
 \end{document}

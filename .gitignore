@@ -475,6 +475,8 @@ TSWLatexianTemp*
 # xwatermark package
 *.xwm
 
-# lstm data
+# networks data
 lstm_data/*
 lstm_data*
+bidirectional_lstm_data/*
+bidirectional_lstm_data*
