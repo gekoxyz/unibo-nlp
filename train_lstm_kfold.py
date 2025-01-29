@@ -72,7 +72,7 @@ for fold_num, (train_idx, val_idx) in enumerate(skf.split(data["text"], data["la
 
     model_checkpoint = ModelCheckpoint(
       f"models/{model_name}.keras",
-      monitor='accuracy',
+      monitor='val_accuracy',
       save_best_only=True,
       verbose=1
     )

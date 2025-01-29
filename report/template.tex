@@ -12,6 +12,7 @@
 \usepackage{microtype}      % microtypography
 \usepackage{lipsum}
 \usepackage{graphicx}
+\usepackage{float}
 
 \usepackage{listings}
 \usepackage{xcolor}
@@ -92,6 +93,7 @@ The implementation leverages TensorFlow and Keras for model development and trai
 % keywords can be removed
 %\keywords{First keyword \and Second keyword \and More}
 
+\tableofcontents
 
 \section{Introduction}
 
@@ -361,21 +363,142 @@ model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['accuracy']
 \end{lstlisting}
 
 \subsection{Hyperparameters selection}
-
-The hyperparameters for the network and the rationale behind them are:
-\begin{itemize}
-  \item \verb|TOKENIZER_MAX_WORDS|: 10000. Since adults that are native english speakers tend to have a vocabulary of 15000 to 30000 words I expect to be able to extract the positive/negative sentiment with two thirds of the tipical vocabulary \cite{babbelDoesYour}.
-\end{itemize}
-
-% VALIDATION_SPLIT = 0.2
-% K_FOLDS = 5
+\label{sec:hyperparameters}
 % TOKENIZER_MAX_WORDS = 10000
 % EPOCHS = 5
 % EMBED_DIM = 128
 % LSTM_OUT = 64
 
+The network has both fixed and experimented hyperparameters.
+The fixed ones are:
+\begin{itemize}
+  \item \verb|VALIDATION_SPLIT = 0.2|: a small portion (20\% of the training data) is sufficient to evaluate the model's generalization performance without significantly reducing the training set size.
+  \item \verb|TOKENIZER_MAX_WORDS = 10000|: Since adults that are native english speakers tend to have a vocabulary of 15000 to 30000 words I expect to be able to extract the positive/negative sentiment with two thirds of the tipical vocabulary \cite{babbelDoesYour}.
+\end{itemize}
+
+The hyperparameters where I experimented are:
+\begin{itemize}
+  \item \verb|BATCH_SIZE|: the batch size is variated from 64 to 128. The batch size defines the number of samples that will be propagated thorugh the network. Using a batch size that is smaller than the number of the samples is useful because it requires less memory since you train the network using fewer samples, and because typically the networks train faster with mini-batches.
+  That's because we update the weights after each propagation \cite{stackexchangeWhatBatch}.
+  \item \verb|REVIEW_MAX_LENGTH|: the maximum review length is variated from 250 to 500 tokens. A longer sequence allows the model to analyze broader textual patterns. Longer sequences require more memory but reduce the truncation of input text. I chose to test both to determine if longer sequences improve sentiment detection. If 500 improves accuracy, longer sequences are better, if 250 performs similarly, it saves computational resources.
+\end{itemize}
+
+This settings challenge the common absumption in deep learning that "bigger is better", that means that a bigger model will yield better results.
+
 \subsection{Model training}
-The models have been trained 
+% VALIDATION_SPLIT = 0.2
+% K_FOLDS = 5
+
+The model training starts with k-fold cross validation.
+Cross validation is a resampling technique used to evaluate machine learning models.
+It provides a statistically more reliable estimation of the performance than a single training/test split.
+This happens because if we do a single training we could get a particularly easy/hard test set, and so we would not come up with the best estimate possible of the models ability to learn and predict.
+
+We want to use all the data.
+So if we use an 80/20 split we are going to do 5-fold cross validation by training the model 5 times on 80\% of the data and testing it on the remaining 20\%.
+We ensure that each data point ends up in the 20\% test set exactly once.
+We've therefore used every data point we have to contribute to an understanding of how well our model performs the task of learning from some data and predicting some new data \cite{stackexchangeChoosePredictive}.
+
+During model training, since I chose 5 trainng epochs as an arbitrary number, I also used ModelCheckpoint.
+This is done or several reasons, in fact using a model checkpoint:
+\begin{itemize}
+  \item Prevents loss of progress since it saves the model at specified intervals. In fact if training crashes or is interrupted, it can be resumed from the last saved checkpoint instead of starting over.
+  \item Saves the "best" model automatically since it only saves the model when the validation loss improves. This is a good thing because it avoids saving suboptimal models, and saves disk space since it overwrites previous checkpoints if the current model has a better validation loss than the last one.
+  \item Mitigates overfitting since by monitoring validation loss even if the model starts to overfit after 3 epochs it won't save the final model, that would have degraded performance compared to the one which stopped at 3 epochs.
+\end{itemize}
+
+This has been done both for the LSTM and for the bidirectional LSTM.
+
+\section{Results and analysis}
+
+\subsection{Training results}
+
+\subsubsection{LSTM}
+
+As we already pointed out in \ref{sec:hyperparameters}, the LSTM has been trained two times: one with batch size of 64 and maximum review length of 250 and one with batch size of 128 and maximum review length of 500.
+These are the training results for the different models and folds:
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c|cccc}
+      \toprule
+      \textbf{Fold} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+      \midrule
+      Fold 1 & 0.8710	& 0.8782 & 0.8710 & 0.8704 \\
+      Fold 2 & 0.8667	& 0.8698 & 0.8667 & 0.8664 \\
+      Fold 3 & 0.8680	& 0.8694 & 0.8680 & 0.8679 \\
+      Fold 4 & 0.8603	& 0.8660 & 0.8603 & 0.8598 \\
+      Fold 5 & 0.8650	& 0.8652 & 0.8650 & 0.8650 \\
+      \midrule
+      Mean ($\pm$ std) & 0.866 $\pm$ 0.00396 & 0.870 $\pm$ 0.00515 &	0.866 $\pm$ 0.00396 & 0.866 $\pm$ 0.00395 \\
+      \bottomrule
+  \end{tabular}
+  \vspace{0.5em}
+  \caption{LSTM with batch size 64 and review length 250}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c|cccc}
+      \toprule
+      \textbf{Fold} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+      \midrule
+      Fold 1 & 0.8621 & 0.8721 & 0.8621 & 0.8612 \\
+      Fold 2 & 0.8484 & 0.8531 & 0.8484 & 0.8479 \\
+      Fold 3 & 0.8540 & 0.8641 & 0.8540 & 0.8530 \\
+      Fold 4 & 0.8673 & 0.8685 & 0.8673 & 0.8672 \\
+      Fold 5 & 0.8701 & 0.8701 & 0.8701 & 0.8701 \\
+      \midrule
+      Mean ($\pm$ std) & 0.860 $\pm$ 0.00908 & 0.866 $\pm$ 0.00757 & 0.860 $\pm$ 0.00908 & 0.860 $\pm$ 0.00936 \\
+      \bottomrule
+  \end{tabular}
+  \vspace{0.5em}
+  \caption{LSTM with batch size 128 and review length 500}
+\end{table}
+
+\subsubsection{Bidirectional LSTM}
+
+The bidirectional LSTM has also been trained in the same two configurations as the standard LSTM: one with batch size of 64 and maximum review length of 250 and one with batch size of 128 and maximum review length of 500.
+These are the training results for the different models and folds: 
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c|cccc}
+      \toprule
+      \textbf{Fold} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+      \midrule
+      Fold 1 & 0.8729 & 0.8760 & 0.8729 & 0.8726 \\
+      Fold 2 & 0.8725 & 0.8744 & 0.8725 & 0.8723 \\
+      Fold 3 & 0.8637 & 0.8637 & 0.8637 & 0.8637 \\
+      Fold 4 & 0.8589 & 0.8590 & 0.8589 & 0.8589 \\
+      Fold 5 & 0.8762 & 0.8763 & 0.8762 & 0.8762 \\
+      \midrule
+      Mean ($\pm$ std) & 0.869 $\pm$ 0.00723 & 0.870 $\pm$ 0.00799 & 0.869 $\pm$ 0.00723 & 0.869 $\pm$ 0.00717 \\
+      \bottomrule
+  \end{tabular}
+  \vspace{0.5em}
+  \caption{Bidirectional LSTM with batch size 64 and review length 250}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c|cccc}
+      \toprule
+      \textbf{Fold} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+      \midrule
+      Fold 1 & 0.8746 & 0.8780 & 0.8746 & 0.8743 \\
+      Fold 2 & 0.8465 & 0.8482 & 0.8465 & 0.8463 \\
+      Fold 3 & 0.8675 & 0.8700 & 0.8675 & 0.8673 \\
+      Fold 4 & 0.8508 & 0.8629 & 0.8508 & 0.8495 \\
+      Fold 5 & 0.8728 & 0.8728 & 0.8728 & 0.8728 \\
+      \midrule
+      Mean ($\pm$ std) & 0.862 $\pm$ 0.01295 & 0.866 $\pm$ 0.01153 & 0.862 $\pm$ 0.01295 & 0.862 $\pm$ 0.01322 \\
+      \bottomrule
+  \end{tabular}
+  \vspace{0.5em}
+  \caption{Bidirectional LSTM with batch size 128 and review length 500}
+\end{table}
+
 
 \bibliographystyle{unsrt}
 \bibliography{references.bib}
