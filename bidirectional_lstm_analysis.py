@@ -4,38 +4,73 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 lstm_64_250_1 = [
-"accuracy: 0.7664 - loss: 0.4729 - val_accuracy: 0.7761 - val_loss: 0.5243",
-"accuracy: 0.9013 - loss: 0.2552 - val_accuracy: 0.7700 - val_loss: 0.5867",
-"accuracy: 0.9212 - loss: 0.2137 - val_accuracy: 0.7479 - val_loss: 0.5987"
+"accuracy: 0.7659 - loss: 0.4763 - val_accuracy: 0.7558 - val_loss: 0.5339",
+"accuracy: 0.9000 - loss: 0.2596 - val_accuracy: 0.8041 - val_loss: 0.4749",
+"accuracy: 0.9160 - loss: 0.2173 - val_accuracy: 0.7544 - val_loss: 0.6160",
+"accuracy: 0.9334 - loss: 0.1840 - val_accuracy: 0.7797 - val_loss: 0.6251"
 ]
 
 lstm_64_250_2 = [
-"accuracy: 0.7694 - loss: 0.4714 - val_accuracy: 0.7804 - val_loss: 0.6751","accuracy: 0.8992 - loss: 0.2620 - val_accuracy: 0.8438 - val_loss: 0.3806","accuracy: 0.9163 - loss: 0.2182 - val_accuracy: 0.8921 - val_loss: 0.2717","accuracy: 0.9297 - loss: 0.1879 - val_accuracy: 0.8319 - val_loss: 0.4650","accuracy: 0.9445 - loss: 0.1553 - val_accuracy: 0.8234 - val_loss: 0.5362"
+"accuracy: 0.7601 - loss: 0.4893 - val_accuracy: 0.8142 - val_loss: 0.5053",
+"accuracy: 0.9005 - loss: 0.2611 - val_accuracy: 0.8071 - val_loss: 0.5727",
+"accuracy: 0.9191 - loss: 0.2189 - val_accuracy: 0.7981 - val_loss: 0.5938"
 ]
 
 lstm_64_250_3 = [
-"accuracy: 0.7578 - loss: 0.4897 - val_accuracy: 0.8291 - val_loss: 0.4382","accuracy: 0.8975 - loss: 0.2590 - val_accuracy: 0.7715 - val_loss: 0.5689","accuracy: 0.9205 - loss: 0.2147 - val_accuracy: 0.8036 - val_loss: 0.5620"
+"accuracy: 0.7668 - loss: 0.4790 - val_accuracy: 0.7475 - val_loss: 0.8763",
+"accuracy: 0.8890 - loss: 0.2853 - val_accuracy: 0.8528 - val_loss: 0.4414",
+"accuracy: 0.9093 - loss: 0.2369 - val_accuracy: 0.7042 - val_loss: 0.8548",
+"accuracy: 0.9295 - loss: 0.1916 - val_accuracy: 0.7458 - val_loss: 0.7561"
 ]
 
 lstm_64_250_4 = [
-"accuracy: 0.7682 - loss: 0.4719 - val_accuracy: 0.6814 - val_loss: 0.7280","accuracy: 0.8925 - loss: 0.2748 - val_accuracy: 0.7744 - val_loss: 0.5880","accuracy: 0.9194 - loss: 0.2111 - val_accuracy: 0.7605 - val_loss: 0.5986","accuracy: 0.9314 - loss: 0.1819 - val_accuracy: 0.7686 - val_loss: 0.6913"
+"accuracy: 0.7651 - loss: 0.4848 - val_accuracy: 0.7790 - val_loss: 0.5414",
+"accuracy: 0.8980 - loss: 0.2625 - val_accuracy: 0.7754 - val_loss: 0.5856",
+"accuracy: 0.9131 - loss: 0.2263 - val_accuracy: 0.8320 - val_loss: 0.4304",
+"accuracy: 0.9335 - loss: 0.1795 - val_accuracy: 0.7491 - val_loss: 0.6729",
+"accuracy: 0.9469 - loss: 0.1481 - val_accuracy: 0.6735 - val_loss: 1.1593"
 ]
 
 lstm_64_250_5 = [
-"accuracy: 0.7700 - loss: 0.4688 - val_accuracy: 0.7713 - val_loss: 0.5759","accuracy: 0.9017 - loss: 0.2538 - val_accuracy: 0.8298 - val_loss: 0.3819","accuracy: 0.9192 - loss: 0.2103 - val_accuracy: 0.8357 - val_loss: 0.4081","accuracy: 0.9311 - loss: 0.1800 - val_accuracy: 0.7896 - val_loss: 0.5853"
+"accuracy: 0.7620 - loss: 0.4828 - val_accuracy: 0.8396 - val_loss: 0.4701",
+"accuracy: 0.8556 - loss: 0.3495 - val_accuracy: 0.7879 - val_loss: 0.5197",
+"accuracy: 0.9119 - loss: 0.2311 - val_accuracy: 0.8035 - val_loss: 0.4920"
 ]
 
-lstm_128_500_1 = ["accuracy: 0.7391 - loss: 0.5046 - val_accuracy: 0.7550 - val_loss: 0.5538","accuracy: 0.9022 - loss: 0.2530 - val_accuracy: 0.7426 - val_loss: 0.5815","accuracy: 0.9243 - loss: 0.2064 - val_accuracy: 0.7470 - val_loss: 0.6874"]
+lstm_128_500_1 = [
+"accuracy: 0.7375 - loss: 0.5174 - val_accuracy: 0.7139 - val_loss: 0.6619",
+"accuracy: 0.8950 - loss: 0.2635 - val_accuracy: 0.7875 - val_loss: 0.5613",
+"accuracy: 0.9116 - loss: 0.2252 - val_accuracy: 0.7714 - val_loss: 0.6170",
+"accuracy: 0.9345 - loss: 0.1835 - val_accuracy: 0.7985 - val_loss: 0.5326",
+"accuracy: 0.9430 - loss: 0.1583 - val_accuracy: 0.7372 - val_loss: 0.7284"
+]
+
 lstm_128_500_2 = [
-"accuracy: 0.7404 - loss: 0.5118 - val_accuracy: 0.7680 - val_loss: 0.5330","accuracy: 0.8981 - loss: 0.2680 - val_accuracy: 0.7384 - val_loss: 0.6051","accuracy: 0.9131 - loss: 0.2379 - val_accuracy: 0.7729 - val_loss: 0.6031"]
+"accuracy: 0.7380 - loss: 0.5173 - val_accuracy: 0.8631 - val_loss: 0.3678",
+"accuracy: 0.8858 - loss: 0.2884 - val_accuracy: 0.8489 - val_loss: 0.4176",
+"accuracy: 0.9108 - loss: 0.2289 - val_accuracy: 0.7829 - val_loss: 0.6345"
+]
+
 lstm_128_500_3 = [
-"accuracy: 0.7415 - loss: 0.5081 - val_accuracy: 0.7566 - val_loss: 0.5837","accuracy: 0.8951 - loss: 0.2693 - val_accuracy: 0.7408 - val_loss: 0.7683","accuracy: 0.9175 - loss: 0.2211 - val_accuracy: 0.7406 - val_loss: 0.7184"
+"accuracy: 0.7326 - loss: 0.5146 - val_accuracy: 0.6246 - val_loss: 0.9302",
+"accuracy: 0.8966 - loss: 0.2662 - val_accuracy: 0.8166 - val_loss: 0.5902",
+"accuracy: 0.9157 - loss: 0.2271 - val_accuracy: 0.7533 - val_loss: 0.7390",
+"accuracy: 0.9211 - loss: 0.2113 - val_accuracy: 0.7997 - val_loss: 0.5532",
+"accuracy: 0.9402 - loss: 0.1682 - val_accuracy: 0.7199 - val_loss: 0.7964"
 ]
+
 lstm_128_500_4 = [
-"accuracy: 0.7438 - loss: 0.4995 - val_accuracy: 0.8192 - val_loss: 0.4522","accuracy: 0.8996 - loss: 0.2557 - val_accuracy: 0.7993 - val_loss: 0.5270","accuracy: 0.9182 - loss: 0.2162 - val_accuracy: 0.7444 - val_loss: 0.8364"
+"accuracy: 0.7471 - loss: 0.5057 - val_accuracy: 0.7339 - val_loss: 0.6656",
+"accuracy: 0.8997 - loss: 0.2574 - val_accuracy: 0.7216 - val_loss: 0.7188",
+"accuracy: 0.9213 - loss: 0.2089 - val_accuracy: 0.6804 - val_loss: 0.9964"
 ]
+
 lstm_128_500_5 = [
-"accuracy: 0.7445 - loss: 0.4980 - val_accuracy: 0.7934 - val_loss: 0.5112","accuracy: 0.9022 - loss: 0.2524 - val_accuracy: 0.8516 - val_loss: 0.3550","accuracy: 0.9182 - loss: 0.2234 - val_accuracy: 0.8120 - val_loss: 0.4818","accuracy: 0.9292 - loss: 0.1901 - val_accuracy: 0.7757 - val_loss: 0.5957"
+"accuracy: 0.7368 - loss: 0.5118 - val_accuracy: 0.7616 - val_loss: 0.5723",
+"accuracy: 0.8953 - loss: 0.2609 - val_accuracy: 0.8301 - val_loss: 0.4524",
+"accuracy: 0.9160 - loss: 0.2203 - val_accuracy: 0.8274 - val_loss: 0.4510",
+"accuracy: 0.9267 - loss: 0.1986 - val_accuracy: 0.8406 - val_loss: 0.4470",
+"accuracy: 0.9353 - loss: 0.1789 - val_accuracy: 0.8120 - val_loss: 0.5511"
 ]
 
 def extract_metrics(data):
@@ -74,12 +109,12 @@ lstm_128_500_5_metrics = extract_metrics(lstm_128_500_5)
 # print(lstm_128_500_4_metrics)
 # print(lstm_128_500_5_metrics)
 
-accuracy_epochs = [0,0,0,0]
-loss_epochs = [0,0,0,0]
-val_accuracy_epochs = [0,0,0,0]
-val_loss_epochs = [0,0,0,0]
+accuracy_epochs = [0,0,0,0,0]
+loss_epochs = [0,0,0,0,0]
+val_accuracy_epochs = [0,0,0,0,0]
+val_loss_epochs = [0,0,0,0,0]
 
-epochs_counter = [0,0,0,0]
+epochs_counter = [0,0,0,0,0]
 
 lstm_64_250_metrics = [lstm_64_250_1_metrics, lstm_64_250_2_metrics, lstm_64_250_3_metrics, lstm_64_250_4_metrics, lstm_64_250_5_metrics]
 

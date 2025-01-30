@@ -238,8 +238,6 @@ Then, we put the cell state through tanh (to push the values between -1 and 1) a
   \label{fig:lstm_output}
 \end{figure}
 
-
-
 \section{Technical implementation}
 
 \subsection{Dataset}
@@ -498,6 +496,77 @@ These are the training results for the different models and folds:
   \vspace{0.5em}
   \caption{Bidirectional LSTM with batch size 128 and review length 500}
 \end{table}
+
+\subsection{Training curves}
+
+We can look at the training curves to make an initial qualitative analysis.
+The data has been obtained by computing the average of the accuracy/loss and validation accuracy/validation loss, if they were present in the data that has been collected.
+
+\subsubsection{LSTM}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/training_curves_lstm_64_250.png}
+  \caption{Training and validation set accuracy and loss for LSTM with batch size 64 and review length 250}
+  \label{fig:training_curves_lstm_64_250}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/training_curves_lstm_128_500.png}
+  \caption{Training and validation set accuracy and loss for LSTM with batch size 128 and review length 500}
+  \label{fig:training_curves_lstm_128_500}
+\end{figure}
+
+By looking at \ref{fig:training_curves_lstm_64_250} and \ref{fig:training_curves_lstm_128_500} we can make some considerations:
+
+\paragraph{Training set performance}
+In both figure \ref{fig:training_curves_lstm_64_250} and figure \ref{fig:training_curves_lstm_128_500} the model shows rapid initial learning in the first two epochs, with training accuracy increasing sharply to approximately 90\% accuracy.
+The training loss correspondingly descreases steeply during this period.
+After the first two epochs, the improvement becomes more gradual, with training accuracy continuing to climb slowly and eventually reaching around 95\% by epoch 5.
+The training loss continues to decrease steadily, reaching the value of about 15\%.
+
+\paragraph{Validation set performance}
+The validation metrics show a different pattern.
+While there is also a sharp improvement in the first two epochs (most of which comes from the first one), the validation accuracy plateaus at around 0.8 and shows minimal improvement after that.
+The validation loss is more concerning.
+In fact, after its initial decrease, stabilizes at much higher value compared to the training loss for both \ref{fig:training_curves_lstm_64_250} and \ref{fig:training_curves_lstm_128_500}.
+Also, we can see that in figure \ref{fig:training_curves_lstm_64_250} the curve for the validation accuracy is smoother than the one in \ref{fig:training_curves_lstm_128_500}.
+The same can be said for validation loss, that increases after the first epoch in \ref{fig:training_curves_lstm_128_500}, and in \ref{fig:training_curves_lstm_64_250} continues to go down for three epochs.
+
+\paragraph{Signs of overfitting}
+There are clear indicators of overfitting in these curves.
+The growing gap between training and validation accuracy, combined with the significant difference between training and validaiton loss, suggests the model is memorizing the training data rather than learning generalizable patterns.
+
+\paragraph{Mitigating the overfitting}
+Based on these patterns the early stopping I implemented in the models was a really good choice, since it stopped the training most of the time after 3 epochs.
+In fact, of the 10 different trainings, only one reached 5 epochs, three reached 4 epochs and the remaining six stopped at 3 epochs.
+
+\subsubsection{Bidirectional LSTM}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/training_curves_bidirectional_64_250.png}
+  \caption{Training and validation set accuracy and loss for bidirectional LSTM with batch size 64 and review length 250}
+  \label{fig:training_curves_bidirectional_64_250}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\linewidth]{img/training_curves_bidirectional_128_500.png}
+  \caption{Training and validation set accuracy and loss for bidirectional LSTM with batch size 128 and review length 500}
+  \label{fig:training_curves_bidirectional_128_500}
+\end{figure}
+
+For \ref{fig:training_curves_bidirectional_64_250} and \ref{fig:training_curves_bidirectional_128_500} we can make considerations similar to what we did for the LSTM curves, since we can see a similar behaviour of rapidly approaching convergence, and then overfitting.
+This is even more visible in the bidirectional LSTM, that starts to lose accuracy and gain loss in the validation sets after convergence, a thing that didn't happen that much in the LSTM.
+
+\subsection{Results analysis}
+
+Just by looking at the previous results I think we got a decent model, but that we could try to get a better one if we tuned our network hyperparameters to train the models more slowly, so that we don't risk overshooting the optimal result.
+
+Let's proceed with a more technical analysis.
+
 
 
 \bibliographystyle{unsrt}
