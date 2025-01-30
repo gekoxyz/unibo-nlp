@@ -45,7 +45,7 @@
 
 \graphicspath{ {./images/} }
 
-\title{Sentiment analysis su dataset IMDB}
+\title{Sentiment analysis on the IMDB dataset}
 
 \author{
  Matteo Galiazzo \\
@@ -85,7 +85,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This project presents an implementation of sentiment analysis on the IMDB movie reviews dataset using deep learning approaches.
+This project presents an implementation of sentiment analysis on the IMDB movie reviews dataset by using deep learning.
 The project explores two different Long Short-Term Memory (LSTM) architectures: a standard LSTM and a bidirectional LSTM model.
 The implementation leverages TensorFlow and Keras for model development and training, with the goal of accurately classifying movie reviews as either positive or negative.
 \end{abstract}
@@ -97,6 +97,10 @@ The implementation leverages TensorFlow and Keras for model development and trai
 
 \section{Introduction}
 
+Sentiment analysis is a crucial task in natural language processing (NLP) that aims to determine the sentiment expressed in a given text, in this case categorized as positive or negative.
+The IMDB dataset is an interesting benchmark for sentiment classification, presents significant challenges due to the complexity of human language, including sarcasm, implicit meaning, and varying writing styles.
+Despite the recent advancements in transformer-based models, recurrent neural networks (RNNs), particularly Long Short-Term Memory (LSTM) networks, remain relevant due to their lower computational complexity and because they can be understood more easily by students.
+In this project I will explore the use of LSTM, both normal and bidirectional ones for the task of sentiment classification on the IMDB dataset.
 
 \subsection{Recurrent Neural Networks}
 
@@ -145,7 +149,7 @@ This is called a bidirectional RNN, and it's structured as follows:
 \end{itemize}
 
 The two output sequences are then concatenated to give the total output: $((y_0, {y'}_0), (y_1, {y'}_1), ..., (y_N, {y'}_N))$.
-Bidirectional RNN allows the model to process a token both in the context of what came before it and what came after it.
+A bidirectional RNN allows the model to process a token both in the context of what came before it and what came after it.
 
 \begin{figure}[htbp]
   \centering
@@ -250,8 +254,7 @@ A negative review has a score $\leq 4$ out of 10, and a positive review has a sc
 
 \subsection{Data preprocessing}
 
-The implementation includes several preprocessing steps.
-The first one is data preprocessing.
+The implementation includes several data preprocessing steps.
 Data preprocessing is important because raw textual data often contains noise, suck as typographical errors, inconsistent formatting and irrelevant symbols.
 Preprocessing techniques aim to transform raw text data into a clean format that facilitates effective feature extraction and model training.
 
@@ -563,11 +566,57 @@ This is even more visible in the bidirectional LSTM, that starts to lose accurac
 
 \subsection{Results analysis}
 
-Just by looking at the previous results I think we got a decent model, but that we could try to get a better one if we tuned our network hyperparameters to train the models more slowly, so that we don't risk overshooting the optimal result.
+Just by looking at the previous results I think that I got a decent model, but I also think that I could try to get a better one if I tuned the network hyperparameters to train the models more slowly, so that the model doesn't risk overshooting the optimal result.
 
 Let's proceed with a more technical analysis.
+We will do a Wilcoxon signed-rank test, first to compare if the bigger model is better as we expected to be, and then if the model we found was better in normal or bidirectional configuration.
+Also we discovered that in our case the review length at 250 is enough to extrapolate the sentiment, and doubling the sequence length doesn't give an improvement.
 
+The Wilcoxon test on the LSTM with batch size 64 and maximum text size 250 and the LSTM with batch size 128 and maximum test size 500 returns a p-value of 0.316.
+We can also see the boxplots to see how the performance varies across folds.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/boxplot_lstm.png}
+  \caption{The boxplot of the LSTM}
+  \label{fig:lstm_boxplot}
+\end{figure}
+
+Since the two models perform similarly, we choose the one with fewer parameters for two reasons: it has a lower variance (so we expect that it will yield more consistent results) and it's simpler so we follow the Occam's razor principle.
+
+By performing the same analysis on the bidirectional LSTM we get a p-value of 0.438 and so we fail again to reject the null hypothesis. We can choose the simpler bidirectional LSTM again for the reasons stated above.
+We can see the boxplots of the bidirectional LSTMs.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/boxplot_bidirectional.png}
+  \caption{The boxplot of the bidirectional LSTM}
+  \label{fig:bidirectional_boxplot}
+\end{figure}
+
+Now we can compare the LSTM with batch size 64 and text length of 250 with its bidirectional LSTM counterpart.
+Doing so results in a p-value of 0.438, so again we reject the null hypothesis.
+We can again choose the simpler model (the LSTM) and plot the boxplots.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{img/boxplot_comparison.png}
+  \caption{The boxplot of the LSTM and the bidirectional LSTM}
+  \label{fig:comparison_boxplot}
+\end{figure}
+
+\section{Conclusions}
+
+I started by thinking that a bigger model would have given me a better model, and I found out that this was not the case this time.
+Some doubts still remain because we have seen that the models converge really fast, but further hyperparameters tuning and analysis would be necessary to say this without any doubts.
+
+If we compare the results with the results of the paper that introduced the IMDB dataset, we can see that they achive 87.44\% accuracy on the dataset with a model that combines unsupervised and supervised techniques to learn word vectors that capture both semantic and sentiment information \cite{imdb_dataset_stanfordnlp}.
+
+I found also an implementation on Kaggle that uses logistic regression with Tfidf for text vectorization and gets 90\% accuracy on the test set. Unfortunately I couldn't verify my LSTM against theirs since they fitted the tokenizer on the whole dataset, and not just the training set, so i think their performance could be improved by that \cite{kaggleIMDbSentiment}.
+
+I found another interesting implementation that uses again logistic regression with 89.03\% accuracy, and also tried to use a LSTM.
+Even if their training curves look nicer than mine and they use also batch normalization, conv and max pooling, their accuracy on the test set is 87.78\%, so not much different from my result.
+Finally, they also use BERT, which yields 89.85\% accuracy on the test set \cite{kaggleIMDBSentimentLSTMandBERT}.
 
 \bibliographystyle{unsrt}
 \bibliography{references.bib}
